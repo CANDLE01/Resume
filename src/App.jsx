@@ -1398,26 +1398,23 @@ const PRESET_GROUPS = [...new Set(PRESETS.map(p=>p.group))];
 
 function SL({children}){ return <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:".12em",color:"#cbd5e1",padding:"10px 6px 5px"}}>{children}</div>; }
 function SBtn({icon,label,onClick,dashed=false,danger=false,style:sx={}}){
-  // Перевіряємо ширину екрана для адаптації відступів під палець
   const isMobileTarget = typeof window !== 'undefined' && window.innerWidth < 768;
-
   return(
     <button onClick={onClick} style={{
-      width:"100%", display:"flex", alignItems:"center", gap:10, 
-      // Збільшений padding для телефонів (12px замість 6px)
+      width:"100%",display:"flex",alignItems:"center",
+      gap: isMobileTarget ? 12 : 8, 
       padding: isMobileTarget ? "12px 14px" : "6px 8px", 
-      borderRadius:8, // Трохи округліші кнопки
-      border:dashed?"1px dashed #e2e8f0":"none", background:"transparent", cursor:"pointer",
-      color:danger?"#dc2626":"#475569", fontSize: isMobileTarget ? "13px" : "11px", // Більший шрифт на мобільних
-      fontWeight:500, textAlign:"left", marginBottom:4, ...sx
-    }}
-    onMouseEnter={e=>{e.currentTarget.style.background=danger?"#fef2f2":"#eff6ff";e.currentTarget.style.color=danger?"#b91c1c":"#3b82f6";}}
-    onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=danger?"#dc2626":"#475569";}}>
+      borderRadius: 8,
+      border:dashed?"1px dashed #e2e8f0":"none",background:"transparent",cursor:"pointer",
+      color:danger?"#dc2626":"#475569", 
+      fontSize: isMobileTarget ? 13 : 11, 
+      fontWeight:500,textAlign:"left",marginBottom:4,...sx}}
+      onMouseEnter={e=>{e.currentTarget.style.background=danger?"#fef2f2":"#eff6ff";e.currentTarget.style.color=danger?"#b91c1c":"#3b82f6";}}
+      onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=danger?"#dc2626":"#475569";}}>
       <span style={{
-        width: isMobileTarget ? 26 : 22, 
-        height: isMobileTarget ? 26 : 22, 
-        borderRadius:6, background:"#f1f5f9", display:"flex", alignItems:"center", justifyContent:"center", 
-        fontSize: isMobileTarget ? 12 : 10, color:"#64748b", flexShrink:0
+        width: isMobileTarget ? 28 : 22, height: isMobileTarget ? 28 : 22, 
+        borderRadius: 6, background:"#f1f5f9",display:"flex",alignItems:"center",justifyContent:"center",
+        fontSize: isMobileTarget ? 13 : 10, color:"#64748b",flexShrink:0
       }}>{icon}</span>
       {label}
     </button>
@@ -1902,7 +1899,10 @@ if(name==="nordic"){
   };
 
   const TabBtn=({id,label})=>(
-    <button onClick={()=>setTab(id)} style={{flex:1,padding:"6px 0",fontSize:10,fontWeight:600,
+    <button onClick={()=>setTab(id)} style={{flex:1, 
+      padding: isMobile ? "14px 4px" : "6px 0", 
+      fontSize: isMobile ? 13 : 10, 
+      fontWeight:600,
       background:tab===id?"#eff6ff":"transparent",color:tab===id?"#3b82f6":"#94a3b8",
       border:"none",cursor:"pointer",borderBottom:tab===id?"2px solid #3b82f6":"2px solid transparent",whiteSpace:"nowrap"}}>
       {label}
@@ -1945,7 +1945,7 @@ if(name==="nordic"){
       <aside className={`no-print sidebar ${isSidebarOpen ? 'open' : ''}`} style={{
         width: isMobile ? '100%' : 236,
         flexShrink: 0,
-        height: isMobile ? (isSidebarOpen ? '45vh' : '0') : '100%',
+        height: isMobile ? (isSidebarOpen ? '55vh' : '0') : '100%',
         position: isMobile ? 'fixed' : 'relative',
         bottom: 0, left: 0,
         background: "rgba(255,255,255,0.98)",
@@ -1961,7 +1961,7 @@ if(name==="nordic"){
         borderTopRightRadius: isMobile ? 16 : 0
       }}>
 
-        {/* Новий елемент: ручка-індикатор для мобільних (Pill) */}
+        {/* Ручка-індикатор для мобільних */}
         {isMobile && (
           <div style={{
             width: '40px', height: '5px', background: '#cbd5e1',
@@ -1969,7 +1969,7 @@ if(name==="nordic"){
           }} />
         )}
 
-        <div style={{padding: isMobile ? "4px 16px 10px" : "14px 16px 10px", borderBottom:"1px solid #f1f5f9", flexShrink:0}}>
+        <div style={{padding: isMobile ? "4px 16px 12px" : "14px 16px 10px", borderBottom:"1px solid #f1f5f9", flexShrink:0}}>
           <div style={{display:"flex", alignItems:"center", gap:10}}>
             <div style={{width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#3b82f6,#6366f1)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:12, fontWeight:700}}>CV</div>
             <div>
@@ -1986,117 +1986,121 @@ if(name==="nordic"){
           <TabBtn id="templates" label="Theme"/>
         </div>
 
-        {/* Оновлена зона контенту з ідеальним скролом */}
-        <div style={{
-          flex: 1, 
-          overflowY: "auto", 
-          padding: isMobile ? "8px 12px 80px" : "4px 10px 8px", 
-          WebkitOverflowScrolling: "touch"
-        }}>
-          {tab==="blocks" && <>
-            <div style={{padding:"6px 0 4px"}}>
-              <input value={blockSearch} onChange={e=>setBlockSearch(e.target.value)}
-                placeholder="Search blocks…"
-                style={{width:"100%",padding:"5px 10px",borderRadius:6,border:"1px solid #e2e8f0",fontSize:11,color:"#334155",background:"#f8fafc",boxSizing:"border-box",outline:"none"}}/>
-            </div>
-            {Object.entries(filteredGroups).map(([grp,presets])=>(
-              <div key={grp}>
-                <div onClick={()=>setExpandedGroups(s=>({...s,[grp]:!s[grp]}))}
-                  style={{display:"flex",alignItems:"center",justifyContent:"space-between",cursor:"pointer",padding:"4px 2px 2px"}}>
-                  <SL>{grp}</SL>
-                  <span style={{fontSize:10,color:"#94a3b8",paddingRight:4}}>{expandedGroups[grp]?"▾":"▸"}</span>
-                </div>
-                {expandedGroups[grp] && presets.map(p=><SBtn key={p.label} icon={p.icon} label={p.label} onClick={()=>addBlock(p)}/>)}
-              </div>
-            ))}
-            {Object.keys(filteredGroups).length===0&&<div style={{fontSize:11,color:"#94a3b8",padding:"8px 4px"}}>No blocks match "{blockSearch}"</div>}
-            <SL>Pages</SL>
-            <SBtn icon="+" label="Add Page"    onClick={()=>setExtraPages(c=>c+1)} dashed/>
-            <SBtn icon="−" label="Remove Page" onClick={()=>setExtraPages(c=>Math.max(0,c-1))} dashed/>
-          </>}
-
-          {tab==="shapes" && <>
-            <SL>Shapes</SL>
-            <div style={{fontSize:9,color:"#94a3b8",padding:"0 4px 8px",lineHeight:1.6}}>Shapes sit on the <b>Background layer</b> and never push text blocks.</div>
-            {SHAPE_TYPES.map(s=><SBtn key={s.id} icon={s.icon} label={s.label} onClick={()=>addShape(s.id)}/>)}
-          </>}
-
-          {tab==="layers" && (
-            <LayersPanel blocks={blocks} selectedIds={selIds} onSelect={onSelect} onUpdate={onUpdate} onDelete={onDelete}/>
-          )}
-
-          {tab==="templates" && <>
-            <SL>Quick Templates</SL>
-            {[
-              {label:"Harvard",  sub:"Traditional strict academic",     n:"harvard"},
-              {label:"Oxford",   sub:"Elegant serif CV",                n:"oxford"},
-              {label:"Executive",sub:"Premium two-column layout",       n:"executive"},
-              {label:"Tech Innovator",sub:"Dark header, modern IT focus",n:"tech"},
-              {label:"Creative Canvas",sub:"Warm tones, artistic layout",n:"creative"},
-              {label:"Modern Grid",sub:"Structured UI design approach", n:"grid"},
-              {label:"Terminal", sub:"Hacker/Coder dark theme",         n:"terminal"},
-              {label:"Corporate",sub:"Classic blue header, structured", n:"corporate"},
-              {label:"Minimalist",sub:"Clean, elegant, lots of whitespace", n:"minimal"},
-              {label:"Sidebar",  sub:"Two-column layout with photo",    n:"sidebar"},
-              {label:"Nordic Clean",  sub:"Minimalist Scandinavian style",  n:"nordic"},
-              {label:"Neon Creative", sub:"Dark theme with energetic rose", n:"neon"},
-              {label:"Classic Legal",  sub:"Double lines traditional serif", n:"legal"},
-              {label:"Infographic",    sub:"Visual charts & data blocks",    n:"infographic"},
-              {label:"Trendy Startup", sub:"Modern badge cloud, active loop",n:"startup"},
-              {label:"Academic Research",sub:"Strict bibliography & long text",n:"academic_cv"},
-              {label:"Elegant Teal",   sub:"Luxury layout with premium teal", n:"teal_luxury"},
-              {label:"Cyberpunk Tech", sub:"Dark cyber layout, cyan coding", n:"cyberpunk"},
-              {label:"Warm Editorial", sub:"Literary Playfair display tones",  n:"editorial"},
-              {label:"Compact Grid",   sub:"Densely packed highly structured",n:"compact_grid"},
-            ].map(t=>(
-              <button key={t.n} onClick={()=>applyTemplate(t.n)}
-                style={{width:"100%",padding:"10px 12px",borderRadius:8,border:"1px solid #e2e8f0",background:"white",cursor:"pointer",textAlign:"left",marginBottom:6,transition:"all .12s"}}
-                onMouseEnter={e=>{e.currentTarget.style.borderColor="#3b82f6";e.currentTarget.style.background="#eff6ff";}}
-                onMouseLeave={e=>{e.currentTarget.style.borderColor="#e2e8f0";e.currentTarget.style.background="white";}}>
-                <div style={{fontSize:11,fontWeight:700,color:"#1e293b"}}>{t.label}</div>
-                <div style={{fontSize:9,color:"#94a3b8",marginTop:2}}>{t.sub}</div>
-              </button>
-            ))}
-          </>}
-        </div>
-
-        <div style={{padding:"10px 14px 10px",borderTop:"1px solid #f1f5f9",flexShrink:0}}>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
-            <span style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:".1em",color:"#cbd5e1"}}>Zoom & Grid</span>
-          </div>
-          <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:6}}>
-            <button onClick={()=>setScale(s=>Math.max(0.3,+(s-.1).toFixed(1)))} style={ZB}>−</button>
-            <div style={{flex:1,textAlign:"center",fontSize:11,fontWeight:600,color:"#475569"}}>{Math.round(scale*100)}%</div>
-            <button onClick={()=>setScale(s=>Math.min(1.5,+(s+.1).toFixed(1)))} style={ZB}>+</button>
-          </div>
-          <input type="range" min={30} max={150} step={5} value={Math.round(scale*100)} onChange={e=>setScale(e.target.value/100)} style={{width:"100%",accentColor:"#3b82f6", marginBottom:8}}/>
+        {/* ЄДИНИЙ СКРОЛ-КОНТЕЙНЕР ДЛЯ ВСЬОГО МЕНЮ */}
+        <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", WebkitOverflowScrolling: "touch" }}>
           
-          <div style={{display:"flex", gap: 12}}>
-            <label style={{display:"flex",alignItems:"center",gap:4,cursor:"pointer",fontSize:10,color:"#64748b"}}>
-              <input type="checkbox" checked={showGrid} onChange={e=>setShowGrid(e.target.checked)} style={{accentColor:"#3b82f6"}}/>
-              Show Grid
-            </label>
-            <label style={{display:"flex",alignItems:"center",gap:4,cursor:"pointer",fontSize:10,color:"#64748b"}} title="Snap movement to 20px grid">
-              <input type="checkbox" checked={snapGrid} onChange={e=>{_snapToGrid=e.target.checked;setSnapGrid(e.target.checked);}} style={{accentColor:"#3b82f6"}}/>
-              Snap
+          {/* Зона контенту вкладок */}
+          <div style={{ flex: "1 0 auto", padding: isMobile ? "12px 16px" : "4px 10px 8px" }}>
+            {tab==="blocks" && <>
+              <div style={{padding:"6px 0 8px"}}>
+                <input value={blockSearch} onChange={e=>setBlockSearch(e.target.value)}
+                  placeholder="Search blocks…"
+                  style={{width:"100%", padding: isMobile ? "12px 14px" : "5px 10px", borderRadius:8, border:"1px solid #e2e8f0", fontSize: isMobile ? 14 : 11, color:"#334155", background:"#f8fafc", boxSizing:"border-box", outline:"none"}}/>
+              </div>
+              {Object.entries(filteredGroups).map(([grp,presets])=>(
+                <div key={grp} style={{marginBottom: 8}}>
+                  <div onClick={()=>setExpandedGroups(s=>({...s,[grp]:!s[grp]}))}
+                    style={{display:"flex", alignItems:"center", justifyContent:"space-between", cursor:"pointer", padding:"8px 4px 4px"}}>
+                    <SL>{grp}</SL>
+                    <span style={{fontSize:16, color:"#94a3b8", paddingRight:4}}>{expandedGroups[grp]?"▾":"▸"}</span>
+                  </div>
+                  {expandedGroups[grp] && presets.map(p=><SBtn key={p.label} icon={p.icon} label={p.label} onClick={()=>addBlock(p)}/>)}
+                </div>
+              ))}
+              {Object.keys(filteredGroups).length===0&&<div style={{fontSize:11,color:"#94a3b8",padding:"8px 4px"}}>No blocks match "{blockSearch}"</div>}
+              
+              <div style={{marginTop: 16}}>
+                <SL>Pages</SL>
+                <SBtn icon="+" label="Add Page"    onClick={()=>setExtraPages(c=>c+1)} dashed/>
+                <SBtn icon="−" label="Remove Page" onClick={()=>setExtraPages(c=>Math.max(0,c-1))} dashed/>
+              </div>
+            </>}
+
+            {tab==="shapes" && <>
+              <SL>Shapes</SL>
+              <div style={{fontSize: isMobile ? 12 : 9, color:"#94a3b8", padding:"0 4px 12px", lineHeight:1.6}}>Shapes sit on the <b>Background layer</b> and never push text blocks.</div>
+              {SHAPE_TYPES.map(s=><SBtn key={s.id} icon={s.icon} label={s.label} onClick={()=>addShape(s.id)}/>)}
+            </>}
+
+            {tab==="layers" && (
+              <LayersPanel blocks={blocks} selectedIds={selIds} onSelect={onSelect} onUpdate={onUpdate} onDelete={onDelete}/>
+            )}
+
+            {tab==="templates" && <>
+              <SL>Quick Templates</SL>
+              {[
+                {label:"Harvard",  sub:"Traditional strict academic",     n:"harvard"},
+                {label:"Oxford",   sub:"Elegant serif CV",                n:"oxford"},
+                {label:"Executive",sub:"Premium two-column layout",       n:"executive"},
+                {label:"Tech Innovator",sub:"Dark header, modern IT focus",n:"tech"},
+                {label:"Creative Canvas",sub:"Warm tones, artistic layout",n:"creative"},
+                {label:"Modern Grid",sub:"Structured UI design approach", n:"grid"},
+                {label:"Terminal", sub:"Hacker/Coder dark theme",         n:"terminal"},
+                {label:"Corporate",sub:"Classic blue header, structured", n:"corporate"},
+                {label:"Minimalist",sub:"Clean, elegant, lots of whitespace", n:"minimal"},
+                {label:"Sidebar",  sub:"Two-column layout with photo",    n:"sidebar"},
+                {label:"Nordic Clean",  sub:"Minimalist Scandinavian style",  n:"nordic"},
+                {label:"Neon Creative", sub:"Dark theme with energetic rose", n:"neon"},
+                {label:"Classic Legal",  sub:"Double lines traditional serif", n:"legal"},
+                {label:"Infographic",    sub:"Visual charts & data blocks",    n:"infographic"},
+                {label:"Trendy Startup", sub:"Modern badge cloud, active loop",n:"startup"},
+                {label:"Academic Research",sub:"Strict bibliography & long text",n:"academic_cv"},
+                {label:"Elegant Teal",   sub:"Luxury layout with premium teal", n:"teal_luxury"},
+                {label:"Cyberpunk Tech", sub:"Dark cyber layout, cyan coding", n:"cyberpunk"},
+                {label:"Warm Editorial", sub:"Literary Playfair display tones",  n:"editorial"},
+                {label:"Compact Grid",   sub:"Densely packed highly structured",n:"compact_grid"}
+              ].map(t=>(
+                <button key={t.n} onClick={()=>applyTemplate(t.n)}
+                  style={{width:"100%", padding: isMobile ? "16px" : "10px 12px", borderRadius:12, border:"1px solid #e2e8f0", background:"white", cursor:"pointer", textAlign:"left", marginBottom:8, transition:"all .12s"}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor="#3b82f6";e.currentTarget.style.background="#eff6ff";}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor="#e2e8f0";e.currentTarget.style.background="white";}}>
+                  <div style={{fontSize: isMobile ? 14 : 11, fontWeight:700, color:"#1e293b"}}>{t.label}</div>
+                  <div style={{fontSize: isMobile ? 12 : 9, color:"#94a3b8", marginTop:4}}>{t.sub}</div>
+                </button>
+              ))}
+            </>}
+          </div>
+
+          {/* Панель Зум і Сітка (тепер прокручується разом з контентом) */}
+          <div style={{padding: isMobile ? "16px" : "10px 14px", borderTop:"1px solid #f1f5f9", flexShrink:0}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}}>
+              <span style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:".1em",color:"#cbd5e1"}}>Zoom & Grid</span>
+            </div>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+              <button onClick={()=>setScale(s=>Math.max(0.3,+(s-.1).toFixed(1)))} style={{...ZB, width: isMobile ? 36 : 26, height: isMobile ? 36 : 26}}>−</button>
+              <div style={{flex:1,textAlign:"center",fontSize: isMobile ? 14 : 11, fontWeight:600,color:"#475569"}}>{Math.round(scale*100)}%</div>
+              <button onClick={()=>setScale(s=>Math.min(1.5,+(s+.1).toFixed(1)))} style={{...ZB, width: isMobile ? 36 : 26, height: isMobile ? 36 : 26}}>+</button>
+            </div>
+            <input type="range" min={30} max={150} step={5} value={Math.round(scale*100)} onChange={e=>setScale(e.target.value/100)} style={{width:"100%",accentColor:"#3b82f6", marginBottom:12}}/>
+            
+            <div style={{display:"flex", gap: 16}}>
+              <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize: isMobile ? 13 : 10, color:"#64748b"}}>
+                <input type="checkbox" checked={showGrid} onChange={e=>setShowGrid(e.target.checked)} style={{accentColor:"#3b82f6", width: isMobile ? 18 : 14, height: isMobile ? 18 : 14}}/>
+                Show Grid
+              </label>
+              <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer",fontSize: isMobile ? 13 : 10, color:"#64748b"}} title="Snap movement to 20px grid">
+                <input type="checkbox" checked={snapGrid} onChange={e=>{_snapToGrid=e.target.checked;setSnapGrid(e.target.checked);}} style={{accentColor:"#3b82f6", width: isMobile ? 18 : 14, height: isMobile ? 18 : 14}}/>
+                Snap
+              </label>
+            </div>
+          </div>
+
+          {/* Панель Експорту (тепер прокручується разом з контентом) */}
+          <div style={{padding: isMobile ? "0 16px 100px" : "0 10px 14px", flexShrink:0, display:"flex", flexDirection:"column", gap:6}}>
+            <SBtn icon="📄" label="Export PDF" onClick={exportPDF} danger/>
+            <SBtn icon="💾" label="Save JSON backup" onClick={saveJSON}/>
+            <SBtn icon="📋" label="Copy JSON" onClick={copyJSON}/>
+            <label style={{width:"100%",display:"flex",alignItems:"center",gap:10,padding: isMobile ? "12px 14px" : "6px 8px",borderRadius:8,border:"none",background:"transparent",cursor:"pointer",color:"#475569",fontSize: isMobile ? 13 : 11,fontWeight:500,textAlign:"left"}}
+              onMouseEnter={e=>{e.currentTarget.style.background="#eff6ff";e.currentTarget.style.color="#3b82f6";}}
+              onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#475569";}}>
+              <span style={{width: isMobile ? 28 : 22, height: isMobile ? 28 : 22, borderRadius:6, background:"#f1f5f9", display:"flex", alignItems:"center", justifyContent:"center", fontSize: isMobile ? 13 : 10, color:"#64748b", flexShrink:0}}>📂</span>
+              Load JSON backup
+              <input type="file" accept=".json" style={{display:"none"}} onChange={loadJSON}/>
             </label>
           </div>
-        </div>
 
-        <div style={{padding:"0 10px 14px",flexShrink:0,display:"flex",flexDirection:"column",gap:4}}>
-          <SBtn icon="📄" label="Export PDF" onClick={exportPDF} danger/>
-          <SBtn icon="💾" label="Save JSON backup" onClick={saveJSON}/>
-          <SBtn icon="📋" label="Copy JSON" onClick={copyJSON}/>
-          <label style={{width:"100%",display:"flex",alignItems:"center",gap:8,padding:"6px 8px",borderRadius:6,border:"none",background:"transparent",cursor:"pointer",color:"#475569",fontSize:11,fontWeight:500,textAlign:"left"}}
-            onMouseEnter={e=>{e.currentTarget.style.background="#eff6ff";e.currentTarget.style.color="#3b82f6";}}
-            onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color="#475569";}}>
-            <span style={{width:22,height:22,borderRadius:5,background:"#f1f5f9",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#64748b",flexShrink:0}}>📂</span>
-            Load JSON backup
-            <input type="file" accept=".json" style={{display:"none"}} onChange={loadJSON}/>
-          </label>
         </div>
       </aside>
-
       <div style={{flex:1,height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
         <div className="no-print toolbar-wrapper" style={{
