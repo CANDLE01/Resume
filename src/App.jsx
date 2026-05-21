@@ -1928,25 +1928,22 @@ if(name==="nordic"){
         </button>
       )}
 
-     <aside className={`no-print sidebar ${isSidebarOpen ? 'open' : ''}`} style={{
-  width: isMobile ? '100%' : 236,
-  flexShrink: 0,
-  
-  // ОСЬ ТУТ: замініть '60vh' на '40vh' (або '45vh', якщо 40 буде замало)
-  height: isMobile ? (isSidebarOpen ? '40vh' : '0') : '100%', 
-  
-  position: isMobile ? 'fixed' : 'relative',
-  bottom: 0, left: 0,
-  background: "rgba(255,255,255,0.98)",
-  backdropFilter: "blur(20px)",
-  borderRight: isMobile ? "none" : "1px solid #f1f5f9",
-  borderTop: isMobile ? "1px solid #f1f5f9" : "none",
-  display: "flex", flexDirection: "column",
-  boxShadow: "4px 0 24px rgba(0,0,0,0.04)",
-  zIndex: 3000,
-  transition: 'height 0.3s ease-in-out',
-  overflow: 'hidden'
-}}>
+      <aside className={`no-print sidebar ${isSidebarOpen ? 'open' : ''}`} style={{
+        width: isMobile ? '100%' : 236,
+        flexShrink: 0,
+        height: isMobile ? (isSidebarOpen ? '60vh' : '0') : '100%',
+        position: isMobile ? 'fixed' : 'relative',
+        bottom: 0, left: 0,
+        background: "rgba(255,255,255,0.98)",
+        backdropFilter: "blur(20px)",
+        borderRight: isMobile ? "none" : "1px solid #f1f5f9",
+        borderTop: isMobile ? "1px solid #f1f5f9" : "none",
+        display: "flex", flexDirection: "column",
+        boxShadow: "4px 0 24px rgba(0,0,0,0.04)",
+        zIndex: 3000,
+        transition: 'height 0.3s ease-in-out',
+        overflow: 'hidden'
+      }}>
 
         <div style={{padding:"14px 16px 10px",borderBottom:"1px solid #f1f5f9",flexShrink:0}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
