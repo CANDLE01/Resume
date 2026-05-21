@@ -1398,13 +1398,27 @@ const PRESET_GROUPS = [...new Set(PRESETS.map(p=>p.group))];
 
 function SL({children}){ return <div style={{fontSize:9,fontWeight:700,textTransform:"uppercase",letterSpacing:".12em",color:"#cbd5e1",padding:"10px 6px 5px"}}>{children}</div>; }
 function SBtn({icon,label,onClick,dashed=false,danger=false,style:sx={}}){
+  // Перевіряємо ширину екрана для адаптації відступів під палець
+  const isMobileTarget = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return(
-    <button onClick={onClick} style={{width:"100%",display:"flex",alignItems:"center",gap:8,padding:"6px 8px",borderRadius:6,
-      border:dashed?"1px dashed #e2e8f0":"none",background:"transparent",cursor:"pointer",
-      color:danger?"#dc2626":"#475569",fontSize:11,fontWeight:500,textAlign:"left",marginBottom:1,...sx}}
-      onMouseEnter={e=>{e.currentTarget.style.background=danger?"#fef2f2":"#eff6ff";e.currentTarget.style.color=danger?"#b91c1c":"#3b82f6";}}
-      onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=danger?"#dc2626":"#475569";}}>
-      <span style={{width:22,height:22,borderRadius:5,background:"#f1f5f9",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:"#64748b",flexShrink:0}}>{icon}</span>
+    <button onClick={onClick} style={{
+      width:"100%", display:"flex", alignItems:"center", gap:10, 
+      // Збільшений padding для телефонів (12px замість 6px)
+      padding: isMobileTarget ? "12px 14px" : "6px 8px", 
+      borderRadius:8, // Трохи округліші кнопки
+      border:dashed?"1px dashed #e2e8f0":"none", background:"transparent", cursor:"pointer",
+      color:danger?"#dc2626":"#475569", fontSize: isMobileTarget ? "13px" : "11px", // Більший шрифт на мобільних
+      fontWeight:500, textAlign:"left", marginBottom:4, ...sx
+    }}
+    onMouseEnter={e=>{e.currentTarget.style.background=danger?"#fef2f2":"#eff6ff";e.currentTarget.style.color=danger?"#b91c1c":"#3b82f6";}}
+    onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=danger?"#dc2626":"#475569";}}>
+      <span style={{
+        width: isMobileTarget ? 26 : 22, 
+        height: isMobileTarget ? 26 : 22, 
+        borderRadius:6, background:"#f1f5f9", display:"flex", alignItems:"center", justifyContent:"center", 
+        fontSize: isMobileTarget ? 12 : 10, color:"#64748b", flexShrink:0
+      }}>{icon}</span>
       {label}
     </button>
   );
@@ -1931,38 +1945,54 @@ if(name==="nordic"){
       <aside className={`no-print sidebar ${isSidebarOpen ? 'open' : ''}`} style={{
         width: isMobile ? '100%' : 236,
         flexShrink: 0,
-        height: isMobile ? (isSidebarOpen ? '60vh' : '0') : '100%',
+        height: isMobile ? (isSidebarOpen ? '45vh' : '0') : '100%',
         position: isMobile ? 'fixed' : 'relative',
         bottom: 0, left: 0,
         background: "rgba(255,255,255,0.98)",
         backdropFilter: "blur(20px)",
         borderRight: isMobile ? "none" : "1px solid #f1f5f9",
-        borderTop: isMobile ? "1px solid #f1f5f9" : "none",
+        borderTop: isMobile ? "2px solid #e2e8f0" : "none",
         display: "flex", flexDirection: "column",
-        boxShadow: "4px 0 24px rgba(0,0,0,0.04)",
+        boxShadow: "0 -8px 32px rgba(0,0,0,0.08)",
         zIndex: 3000,
-        transition: 'height 0.3s ease-in-out',
-        overflow: 'hidden'
+        transition: 'height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        overflow: 'hidden',
+        borderTopLeftRadius: isMobile ? 16 : 0,
+        borderTopRightRadius: isMobile ? 16 : 0
       }}>
 
-        <div style={{padding:"14px 16px 10px",borderBottom:"1px solid #f1f5f9",flexShrink:0}}>
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <div style={{width:32,height:32,borderRadius:10,background:"linear-gradient(135deg,#3b82f6,#6366f1)",display:"flex",alignItems:"center",justifyContent:"center",color:"white",fontSize:12,fontWeight:700}}>CV</div>
+        {/* Новий елемент: ручка-індикатор для мобільних (Pill) */}
+        {isMobile && (
+          <div style={{
+            width: '40px', height: '5px', background: '#cbd5e1',
+            borderRadius: '2.5px', margin: '10px auto 4px', flexShrink: 0
+          }} />
+        )}
+
+        <div style={{padding: isMobile ? "4px 16px 10px" : "14px 16px 10px", borderBottom:"1px solid #f1f5f9", flexShrink:0}}>
+          <div style={{display:"flex", alignItems:"center", gap:10}}>
+            <div style={{width:32, height:32, borderRadius:10, background:"linear-gradient(135deg,#3b82f6,#6366f1)", display:"flex", alignItems:"center", justifyContent:"center", color:"white", fontSize:12, fontWeight:700}}>CV</div>
             <div>
-              <div style={{fontSize:13,fontWeight:700,color:"#1e293b",letterSpacing:"-.3px"}}>Resume Builder</div>
-              <div style={{fontSize:9,color:"#94a3b8"}}>Pro · Free-form canvas</div>
+              <div style={{fontSize:13, fontWeight:700, color:"#1e293b", letterSpacing:"-.3px"}}>Resume Builder</div>
+              <div style={{fontSize:9, color:"#94a3b8"}}>Pro · Free-form canvas</div>
             </div>
           </div>
         </div>
 
-        <div style={{display:"flex",borderBottom:"1px solid #f1f5f9",flexShrink:0,overflowX:"auto"}}>
+        <div style={{display:"flex", borderBottom:"1px solid #f1f5f9", flexShrink:0, overflowX:"auto"}}>
           <TabBtn id="blocks"    label="Blocks"/>
           <TabBtn id="shapes"    label="Shapes"/>
           <TabBtn id="layers"    label="Layers"/>
           <TabBtn id="templates" label="Theme"/>
         </div>
 
-        <div style={{flex:1,overflowY:"auto",padding:"4px 10px 8px"}}>
+        {/* Оновлена зона контенту з ідеальним скролом */}
+        <div style={{
+          flex: 1, 
+          overflowY: "auto", 
+          padding: isMobile ? "8px 12px 80px" : "4px 10px 8px", 
+          WebkitOverflowScrolling: "touch"
+        }}>
           {tab==="blocks" && <>
             <div style={{padding:"6px 0 4px"}}>
               <input value={blockSearch} onChange={e=>setBlockSearch(e.target.value)}
