@@ -127,7 +127,6 @@ function makeDefaults() {
     {id:uid(),page:0,x:40, y:176,w:714,h:2,  z:LAYER_MID,type:"divider",color:"#3b82f6"},
     {id:uid(),page:0,x:40, y:196,w:340,h:260,z:LAYER_TOP,type:"text",   html:"<div style='line-height:1.5'><div style='font-size:9px;font-family:\"DM Sans\",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:#3b82f6;margin-bottom:8px'>Experience & Projects</div><div style='font-size:13px;font-weight:700;font-family:Georgia,serif;color:#1e293b'>Resume Constructor Web App</div><div style='font-size:11px;font-family:\"DM Sans\",sans-serif;color:#3b82f6;margin-bottom:6px'>React / LocalStorage · 2026</div><div style='font-size:11.5px;font-family:\"DM Sans\",sans-serif;color:#475569;margin-bottom:12px'>Designed and developed a fully functional resume builder featuring draggable interface components, custom blocks, and real-time editing.</div><div style='font-size:13px;font-weight:700;font-family:Georgia,serif;color:#1e293b'>SaaS Analytics Telegram Bot</div><div style='font-size:11px;font-family:\"DM Sans\",sans-serif;color:#3b82f6;margin-bottom:6px'>Python / aiogram · Early 2026</div><div style='font-size:11.5px;font-family:\"DM Sans\",sans-serif;color:#475569'>Developed a bot for tracking Telegram channel follower growth and engagement rates.</div></div>"},
     {id:uid(),page:0,x:400,y:196,w:354,h:100,z:LAYER_TOP,type:"text",   html:"<div style='line-height:1.8'><div style='font-size:9px;font-family:\"DM Sans\",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:#3b82f6;margin-bottom:8px'>Skills</div><div style='font-size:11.5px;font-family:\"DM Sans\",sans-serif;color:#475569'><b>Software:</b> Python, C# .NET WinForms, React, Unity 3D<br><b>Engineering:</b> SolidWorks, Powder Metallurgy, Vickers Hardness Testing (VK3, VK6)<br></div></div>"},
-    
     {id:uid(),page:0,x:40, y:480,w:340,h:40,z:LAYER_TOP,type:"social", align:"flex-start", color:"#1e293b", items:[{icon:"github",text:"GitHub",url:"https://github.com/CANDLE01"}]},
   ];
 }
@@ -768,7 +767,7 @@ const applyFont = fontName => {
   );
 }
 
-const ROW = {display:"flex",alignItems:"flex-start",gap:0,flexWrap:"nowrap",minHeight:TOOLBAR_HEIGHT,overflow:"visible"};
+const ROW = {display:"flex",alignItems:"flex-start",gap:0,flexWrap:"nowrap",minHeight:TOOLBAR_HEIGHT,overflow:"visible", paddingRight: 20};
 
 // Рендеринг іконок
 const renderIcon = (iconString) => {
@@ -982,6 +981,7 @@ const Block = ({ block, selected, selectedIds, allBlocks, onSelect, onUpdate, on
         cursor: block.locked?"default":"default",
         opacity: block.hidden?0.18:1,
         pointerEvents: block.hidden?"none":"auto",
+        touchAction: editing ? "auto" : "none",
       }}
       onMouseDown={e => {
         if (editing) { e.stopPropagation(); return; }
@@ -1417,13 +1417,32 @@ export default function ResumeBuilder() {
   const [future,     setFuture]     = useState([]);
   const [selIds,     setSelIds]     = useState([]);
   const [guides,     setGuides]     = useState({v:[],h:[]});
-  const [scale,      setScale]      = useState(0.82);
   const [extraPages, setExtraPages] = useState(0);
   const [tab,        setTab]        = useState("blocks");
   const [showGrid,   setShowGrid]   = useState(true);
   const [snapGrid,   setSnapGrid]   = useState(true);
   const [blockSearch,setBlockSearch]= useState("");
   const [expandedGroups, setExpandedGroups] = useState({Text:true,Dividers:true,Media:true,Visual:true});
+
+ const [scale, setScale] = useState(() => {
+    const width = typeof window !== 'undefined' ? window.innerWidth : 1024;
+    return width < 768 ? 0.4 : 0.82;
+  });
+  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const mobile = width < 768;
+      setIsMobile(mobile);
+      // Примусово оновлюємо масштаб при зміні розміру вікна
+      setScale(mobile ? 0.4 : 0.82);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const pagesRef = useRef(null);
   const bRef     = useRef(blocks);
@@ -1893,9 +1912,41 @@ if(name==="nordic"){
       fontFamily:"'DM Sans','Helvetica Neue',sans-serif",
       background:"linear-gradient(135deg,#eef0f4 0%,#e2e8f2 100%)"}}>
 
-      <aside className="no-print" style={{width:236,flexShrink:0,height:"100%",background:"rgba(255,255,255,0.94)",
-        backdropFilter:"blur(20px)",borderRight:"1px solid #f1f5f9",display:"flex",flexDirection:"column",
-        boxShadow:"4px 0 24px rgba(0,0,0,0.04)",zIndex:50}}>
+      {/* Кнопка відкриття меню (тільки для мобільних) */}
+      {isMobile && (
+        <button
+          className="no-print"
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          style={{
+            position: 'fixed', bottom: 20, right: 20, zIndex: 4000,
+            width: 50, height: 50, borderRadius: 25, background: '#3b82f6',
+            color: 'white', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            fontSize: 24, display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}
+        >
+          {isSidebarOpen ? '✕' : '☰'}
+        </button>
+      )}
+
+     <aside className={`no-print sidebar ${isSidebarOpen ? 'open' : ''}`} style={{
+  width: isMobile ? '100%' : 236,
+  flexShrink: 0,
+  
+  // ОСЬ ТУТ: замініть '60vh' на '40vh' (або '45vh', якщо 40 буде замало)
+  height: isMobile ? (isSidebarOpen ? '40vh' : '0') : '100%', 
+  
+  position: isMobile ? 'fixed' : 'relative',
+  bottom: 0, left: 0,
+  background: "rgba(255,255,255,0.98)",
+  backdropFilter: "blur(20px)",
+  borderRight: isMobile ? "none" : "1px solid #f1f5f9",
+  borderTop: isMobile ? "1px solid #f1f5f9" : "none",
+  display: "flex", flexDirection: "column",
+  boxShadow: "4px 0 24px rgba(0,0,0,0.04)",
+  zIndex: 3000,
+  transition: 'height 0.3s ease-in-out',
+  overflow: 'hidden'
+}}>
 
         <div style={{padding:"14px 16px 10px",borderBottom:"1px solid #f1f5f9",flexShrink:0}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -2021,7 +2072,7 @@ if(name==="nordic"){
 
       <div style={{flex:1,height:"100%",display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
-        <div className="no-print" style={{
+        <div className="no-print toolbar-wrapper" style={{
           flexShrink:0,
           height:TOOLBAR_HEIGHT+16,
           minHeight:TOOLBAR_HEIGHT+16,
@@ -2035,9 +2086,11 @@ if(name==="nordic"){
           gap:8,
           zIndex:2500,
           boxShadow:"0 2px 12px rgba(0,0,0,0.04)",
-          overflow:"visible" // <--- ЗМІНЕНО З hidden НА visible
+          overflowX: "auto",
+          overflowY: "visible",
+          WebkitOverflowScrolling: "touch"
         }}>
-          <div style={{flex:1,overflow:"visible",display:"flex",alignItems:"center"}}> {/* <--- ЗМІНЕНО overflowX та overflowY НА visible */}
+          <div style={{flex:1,overflow:"visible",display:"flex",alignItems:"center"}}>
             <Toolbar
               block={primary}
               allBlocks={blocks.map(b=>({...b,_sel:selIds.includes(b.id)}))}
@@ -2114,6 +2167,20 @@ if(name==="nordic"){
           .print-pages-container{gap:0!important;display:block!important}
           .cv-page{width:210mm!important;height:297mm!important;box-shadow:none!important;border-radius:0!important;background-image:none!important;page-break-after:always;margin:0!important;border:none!important;outline:none!important;position:relative!important;left:0!important;top:0!important;overflow:hidden!important}
         }
+        @media (max-width: 768px) {
+          .app-wrapper {
+            flex-direction: column !important;
+          }
+          .print-area {
+            padding: 20px 10px !important;
+          }
+          .toolbar-wrapper::-webkit-scrollbar {
+            height: 4px;
+          }
+          button:active {
+            background-color: #f1f5f9 !important;
+          }
+        }
       `}</style>
     </div>
   );
@@ -2121,8 +2188,12 @@ if(name==="nordic"){
 
 const ZB = {width:26,height:26,borderRadius:6,border:"1px solid #e2e8f0",background:"#f8fafc",cursor:"pointer",fontSize:14,color:"#64748b",display:"flex",alignItems:"center",justifyContent:"center"};
 const HANDLES = [
-  {dir:"nw",cur:"nw-resize",s:{top:-5,left:-5}},{dir:"n",cur:"n-resize",s:{top:-5,left:"50%",transform:"translateX(-50%)"}},
-  {dir:"ne",cur:"ne-resize",s:{top:-5,right:-5}},{dir:"e",cur:"e-resize",s:{top:"50%",right:-5,transform:"translateY(-50%)"}},
-  {dir:"se",cur:"se-resize",s:{bottom:-5,right:-5}},{dir:"s",cur:"s-resize",s:{bottom:-5,left:"50%",transform:"translateX(-50%)"}},
-  {dir:"sw",cur:"sw-resize",s:{bottom:-5,left:-5}},{dir:"w",cur:"w-resize",s:{top:"50%",left:-5,transform:"translateY(-50%)"}},
+  {dir:"nw",cur:"nw-resize",s:{top:-5,left:-5}},
+  {dir:"n",cur:"n-resize",s:{top:-5,left:"50%",transform:"translateX(-50%)"}},
+  {dir:"ne",cur:"ne-resize",s:{top:-5,right:-5}},
+  {dir:"e",cur:"e-resize",s:{top:"50%",right:-5,transform:"translateY(-50%)"}},
+  {dir:"se",cur:"se-resize",s:{bottom:-5,right:-5}},
+  {dir:"s",cur:"s-resize",s:{bottom:-5,left:"50%",transform:"translateX(-50%)"}},
+  {dir:"sw",cur:"sw-resize",s:{bottom:-5,left:-5}},
+  {dir:"w",cur:"w-resize",s:{top:"50%",left:-5,transform:"translateY(-50%)"}}
 ];
