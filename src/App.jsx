@@ -573,7 +573,7 @@ const applyFont = fontName => {
 
   if (!block) return (
     <div style={{...ROW, minHeight:TOOLBAR_HEIGHT, alignItems:"center"}}>
-      <span style={{fontSize:12,color:"#94a3b8",marginLeft:12,fontWeight:500}}>Click a block to select · Double-click to edit content · Shift+click for multi-select · Arrow keys to nudge</span>
+      <span style={{fontSize:12,color:"#94a3b8",marginLeft:12,fontWeight:500}}></span>
     </div>
   );
 
